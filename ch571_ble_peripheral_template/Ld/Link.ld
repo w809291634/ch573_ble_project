@@ -60,7 +60,7 @@ SECTIONS
 		. = ALIGN(4);
 	} >FLASH AT>FLASH 
 
-	/* letter-shell ÃüÁîµ¼³ö¶Î£ºSHELL_EXPORT_CMD/KEY µÈ·ÅÈë´Ë¶Î */
+	/* letter-shell å‘½ä»¤å¯¼å‡ºæ®µï¼šSHELL_EXPORT_CMD/KEY ç­‰æ”¾å…¥æ­¤æ®µ */
 	.shellCommand :
 	{
 		. = ALIGN(4);
