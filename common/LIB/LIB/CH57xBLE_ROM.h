@@ -229,7 +229,7 @@ extern const uint8_t VER_LIB[];  // LIB version
 #define ABS(n)     (((n) < 0) ? -(n) : (n))
 #endif
 
-/* TxPower define(Accuracy:¡À2dBm) */
+/* TxPower define(Accuracy:Â±2dBm) */
 #define LL_TX_POWEER_MINUS_20_DBM       0x01
 #define LL_TX_POWEER_MINUS_14_DBM       0x03
 #define LL_TX_POWEER_MINUS_8_DBM        0x07
@@ -2459,7 +2459,7 @@ typedef struct tag_rf_config
  * @return  access address
  * the Access Address meets the following requirements:
  * It shall have no more than six consecutive zeros or ones. 
- * It shall not be t he advertising channel packets¡¯ Access Address.
+ * It shall not be t he advertising channel packetsâ€™ Access Address.
  * It shall not be a sequence that differ s from the advertising channel packets' Access Address by only one bit.
  * It shall not have all four octets equal.
  * It shall have no more  than 24 transitions.
