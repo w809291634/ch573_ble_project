@@ -28,6 +28,14 @@
 /* 全局调试层：低于该级别的日志不输出。可用 DBG_ERROR、DBG_WARNING、DBG_INFO、DBG_LOG。 */
 #define BOARD_CFG_LOG_LEVEL         DBG_INFO
 
+/* ============================ Shell：命令行控制台 ============================ */
+/* 输入/输出走 USB CDC，建立最低优先级任务消费输入。 */
+
+/* 兼容 apl_shell 库（letter-shell）使用的 BOARD_CONFIG_ 命名 */
+#define BOARD_CFG_SHELL_ENABLE          1       /* 1=启用 shell 控制台 */
+#define BOARD_CFG_SHELL_BUFFER_SIZE     256     /* 命令行输入缓冲 */
+#define BOARD_CFG_SHELL_HISTORY_MAX_NUMBER    5U   /* 历史历史命令记录数量 */
+
 /* ============================ 中断优先级 ============================ */
 /* PFIC 仅优先级字段高 4 位有效，数值越小优先级越高；0xF0 为最低优先级。 */
 #define BOARD_CFG_USB_IRQ_PRIORITY   0xF0u
@@ -37,14 +45,5 @@
 #define BOARD_CFG_FW_VERSION_MAJOR  1u   /* 如 V1.0.0 -> 01 00 00 */
 #define BOARD_CFG_FW_VERSION_MINOR  0u
 #define BOARD_CFG_FW_VERSION_PATCH  0u
-
-/* ============================ Shell：命令行控制台 ============================ */
-/* 输入/输出走 USB CDC，建立最低优先级任务消费输入。 */
-
-/* 兼容 apl_shell 库（letter-shell）使用的 BOARD_CONFIG_ 命名 */
-#define BOARD_CFG_SHELL_ENABLE          1       /* 1=启用 shell 控制台 */
-#define BOARD_CFG_SHELL_BUFFER_SIZE     256     /* 命令行输入缓冲 */
-#define BOARD_CFG_SHELL_HISTORY_MAX_NUMBER    5U   /* 历史历史命令记录数量 */
-
 
 #endif
