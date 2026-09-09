@@ -6,7 +6,7 @@ PROVIDE( _stack_size = __stack_size );
 
 MEMORY
 {
-	FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 448K
+	FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 192K
 	RAM (xrw) : ORIGIN = 0x20003800, LENGTH = 18K
 }
 
@@ -59,6 +59,17 @@ SECTIONS
 		*(.gnu.linkonce.t.*)
 		. = ALIGN(4);
 	} >FLASH AT>FLASH 
+
+	/* letter-shell 命令导出段：SHELL_EXPORT_CMD/KEY 等放入此段 */
+	.shellCommand :
+	{
+		. = ALIGN(4);
+		PROVIDE_HIDDEN (_shell_command_start = .);
+		KEEP (*(.shellCommand))
+		KEEP (*(shellCommand))
+		PROVIDE_HIDDEN (_shell_command_end = .);
+		. = ALIGN(4);
+	} >FLASH AT>FLASH
 
 	.fini :
 	{
