@@ -13,8 +13,8 @@
 #include <stdarg.h>
 #include "letter_shell_app.h"
 #include "shell.h"
-#include "usb_cdc/usb_cdc.h"
-#include "utility/utility.h"
+#include "drv_usb_cdc/usb_cdc.h"
+#include "apl_utility/utility.h"
 
 #define DBG_TAG         "shell"
 #define DBG_LVL         DBG_INFO

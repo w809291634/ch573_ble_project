@@ -35,6 +35,16 @@
 			<locationURI>PARENT-1-PROJECT_LOC/common/LIB/LIB</locationURI>
 		</link>
 		<link>
+			<name>APL</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/common/APL</locationURI>
+		</link>
+		<link>
+			<name>DRV</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/common/DRV</locationURI>
+		</link>
+		<link>
 			<name>RVMSIS</name>
 			<type>2</type>
 			<locationURI>PARENT-3-PROJECT_LOC/SRC/RVMSIS</locationURI>

@@ -142,7 +142,7 @@
  * @note 此宏不定义时无法使用双击tab补全命令help，无法使用shell超时锁定
  */
 /* 使用公共毫秒时钟（utility 模块），供双击 Tab 补全 help 使用 */
-#include "utility/utility.h"
+#include "apl_utility/utility.h"
 #define     SHELL_GET_TICK()            Utility_GetTickMs()
 
 /**

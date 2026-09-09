@@ -16,6 +16,10 @@
 #include "HAL.h"
 #include "gattprofile.h"
 #include "peripheral.h"
+#include "board_config.h"
+#include "drv_usb_cdc/usb_cdc.h"
+#include "apl_shell/letter_shell_app.h"
+#include <stdio.h>
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -56,10 +60,12 @@ int main(void)
     PWR_DCDCCfg(ENABLE);
 #endif
     SetSysClock(CLK_SOURCE_PLL_60MHz);
+    setvbuf(stdout, NULL, _IONBF, 0);
 #if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
     GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
     GPIOB_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 #endif
+    USB_CDC_Init();
 #ifdef DEBUG
     GPIOA_SetBits(bTXD1);
     GPIOA_ModeCfg(bTXD1, GPIO_ModeOut_PP_5mA);
@@ -70,6 +76,9 @@ int main(void)
     HAL_Init();
     GAPRole_PeripheralInit();
     Peripheral_Init();
+#if BOARD_CFG_SHELL_ENABLE == 1
+    ShellInit();
+#endif
     Main_Circulation();
 }
 
