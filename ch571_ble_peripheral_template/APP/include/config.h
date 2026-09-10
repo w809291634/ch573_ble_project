@@ -14,6 +14,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include "board_config.h"
+
 #define	ID_CH573                            0x73
 
 #define CHIP_ID                             ID_CH573

@@ -16,8 +16,7 @@
 #include "HAL.h"
 #include "gattprofile.h"
 #include "peripheral.h"
-#include "board_config.h"
-#include "drv_usb_cdc/usb_cdc.h"
+#include "stdio_redirect.h"
 #include "apl_shell/letter_shell_app.h"
 #include <stdio.h>
 
@@ -65,13 +64,8 @@ int main(void)
     GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
     GPIOB_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 #endif
-    USB_CDC_Init();
-#ifdef DEBUG
-    GPIOA_SetBits(bTXD1);
-    GPIOA_ModeCfg(bTXD1, GPIO_ModeOut_PP_5mA);
-    UART1_DefInit();
-#endif
-    PRINT("%s\n", VER_LIB);
+    Stdio_RedirectInit();
+    printf("%s\n", VER_LIB);
     CH57X_BLEInit();
     HAL_Init();
     GAPRole_PeripheralInit();

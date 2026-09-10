@@ -15,12 +15,15 @@
 
 /* ============================ 调试与日志输出 ============================ */
 
-/* 调试输出端口：可选 Debug_UART0、Debug_UART1、Debug_UART2 或 Debug_UART3。
- * 由本板级配置文件统一设置，默认使用 Debug_UART1。 */
-#define DEBUG                   Debug_UART1
+/* stdout/printf 输出路由：可选 USB CDC、UART1 或 UART2。 */
+#define BOARD_CFG_STDIO_OUTPUT_USB_CDC   0u
+#define BOARD_CFG_STDIO_OUTPUT_UART0     1u
+#define BOARD_CFG_STDIO_OUTPUT_UART1     2u
+#define BOARD_CFG_STDIO_OUTPUT_UART2     3u
+#define BOARD_CFG_STDIO_OUTPUT_UART3     4u
 
-/* 启用后，printf/PRINT 输出重定向到 USB CDC 虚拟串口。 */
-#define BOARD_CFG_USB_CDC_PRINTF
+/* 默认通过 USB CDC 虚拟串口输出。 */
+#define BOARD_CFG_STDIO_OUTPUT            BOARD_CFG_STDIO_OUTPUT_USB_CDC
 
 /* ============================ 日志：debug_log 全局配置 ============================ */
 /* 全局 debug 开关：0=使能日志；1=全部关闭。 */

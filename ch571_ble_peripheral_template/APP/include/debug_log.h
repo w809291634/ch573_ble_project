@@ -41,7 +41,7 @@ extern "C" {
 
 /* config */
 #ifndef _kprintf
-#define _kprintf    printf                        // 定义串口输出函数（CH571：走 UART/DEBUG 或 USB CDC）
+#define _kprintf    printf                        // 输出由 BOARD_CFG_STDIO_OUTPUT 选择 USB CDC、UART1 或 UART2
 #define _irq_lock(...)  ((void)0)                 // CH571 单线程，无需中断锁
 #define dbg_hw_init(...) ((void)0)                // 硬件初始化由工程自身完成
 //#define _timestamp  esp_log_timestamp             // 时间戳函数
