@@ -47,13 +47,13 @@ void Main_Circulation()
 }
 
 /*********************************************************************
- * @fn      main
+ * @fn      hardware_init
  *
- * @brief   主函数
+ * @brief   硬件初始化函数
  *
  * @return  none
  */
-int main(void)
+static void hardware_init(void)
 {
 #if(defined(DCDC_ENABLE)) && (DCDC_ENABLE == TRUE)
     PWR_DCDCCfg(ENABLE);
@@ -66,6 +66,17 @@ int main(void)
 #endif
     Stdio_RedirectInit();
     printf("%s\n", VER_LIB);
+}
+
+/*********************************************************************
+ * @fn      tasks_init
+ *
+ * @brief   任务初始化函数
+ *
+ * @return  none
+ */
+static void tasks_init(void)
+{
     CH57X_BLEInit();
     HAL_Init();
     GAPRole_PeripheralInit();
@@ -73,6 +84,19 @@ int main(void)
 #if BOARD_CFG_SHELL_ENABLE == 1
     ShellInit();
 #endif
+}
+
+/*********************************************************************
+ * @fn      main
+ *
+ * @brief   主函数
+ *
+ * @return  none
+ */
+int main(void)
+{
+    hardware_init();
+    tasks_init();
     Main_Circulation();
 }
 
