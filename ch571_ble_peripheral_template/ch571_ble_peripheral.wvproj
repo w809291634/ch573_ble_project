@@ -4,9 +4,20 @@
 	"isNormalMRSProject": true,
 	"basic": {
 		"chipInfo": {
+			"vendor": "WCH",
+			"toolchain": "RISC-V",
+			"series": "CH57X",
 			"rtos": "NoneOS",
+			"mcu": "CH571F",
+			"description": "",
+			"tempratureScope": "",
+			"artifactType": "executable",
+			"link": "WCH-Link",
+			"peripheral_version": "1.0",
 			"calibrateSupport": false,
+			"calibrateCommand": "",
 			"UIConfigSupport": false,
+			"UIConfigCommand": "",
 			"externalFlashSupport": false
 		},
 		"linkedFolders": [
@@ -160,9 +171,7 @@
 					"preprocessor": {
 						"do_not_search_system_directories": false,
 						"preprocess_only": false,
-						"defined_symbols": [
-							"DEBUG=1"
-						],
+						"defined_symbols": [],
 						"undefined_symbols": []
 					},
 					"includes": {
@@ -179,9 +188,7 @@
 							"${project}/DRV"
 						],
 						"include_system_paths": [],
-						"include_files": [
-							"${project}/APP/include/board_config.h"
-						]
+						"include_files": []
 					},
 					"optimization": {
 						"language_standard": "gnu99",
@@ -385,11 +392,11 @@
 		]
 	},
 	"flashConfig": {
-		"mcutype": "",
-		"address": "",
+		"mcutype": "CH57x",
+		"address": "0x00000000",
 		"target_path": "",
 		"clkSpeed": "High",
-		"debug_interface_mode": "1-wire serial",
+		"debug_interface_mode": "",
 		"erase": false,
 		"program": false,
 		"verify": false,
@@ -460,6 +467,7 @@
 			},
 			"debugInRAM": false
 		},
+		"svdpath": null,
 		"output": {
 			"showDebugGDBTrace": true,
 			"saveDebugOutputToFile": false,
@@ -473,10 +481,8 @@
 			"ATTR_BUILD_BEFORE_LAUNCH_ATTR": 2,
 			"GdbServerAllocateConsole": true,
 			"GdbServerAllocateTelnetConsole": false,
-			"SkipDownloadBeforeDebug": false,
 			"StartGdbCLient": true,
-			"UPDATE_THREADLIST_ON_SUSPEND": false,
-			"DebugInRam": false
+			"UPDATE_THREADLIST_ON_SUSPEND": false
 		}
 	}
 }
