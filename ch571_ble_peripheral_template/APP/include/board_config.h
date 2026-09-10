@@ -15,8 +15,9 @@
 
 /* ============================ 调试与日志输出 ============================ */
 
-/* 调试输出端口由工程的 C/C++ Symbols 中的 DEBUG 配置：
- * 可选 Debug_UART0、Debug_UART1、Debug_UART2 或 Debug_UART3；默认 Debug_UART1。 */
+/* 调试输出端口：可选 Debug_UART0、Debug_UART1、Debug_UART2 或 Debug_UART3。
+ * 由本板级配置文件统一设置，默认使用 Debug_UART1。 */
+#define DEBUG                   Debug_UART1
 
 /* 启用后，printf/PRINT 输出重定向到 USB CDC 虚拟串口。 */
 #define BOARD_CFG_USB_CDC_PRINTF
