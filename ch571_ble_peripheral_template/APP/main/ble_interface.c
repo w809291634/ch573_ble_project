@@ -10,13 +10,36 @@
 
 #define DBG_TAG         "ble"
 #define DBG_LVL         DBG_INFO
+#define DBG_LEVEL       DBG_LOG
 #include "debug_log.h"
 
 #include "user_profile.h"
 
 /*********************************************************************
+ * 数据打印：原始 log_draw 输出，格式 "<- / -> 长度: 逐字节 HEX"。
+ * 方向 dir 传 "<- "（发送）或 "-> "（接收）。
+ *********************************************************************/
+/*********************************************************************
+ * @fn      ble_dump
+ * @brief   以 log_draw 输出一帧数据的方向、长度与逐字节内容。
+ * @param   dir   - 方向标识："<- "=发送，"-> "=接收。
+ * @param   pData - 数据缓冲。
+ * @param   len   - 数据长度。
+ * @return  none
+ */
+static void ble_dump(const char *dir, uint8_t *pData, uint16_t len)
+{
+    uint16_t i;
+
+    log_draw("%s%u:", dir, (unsigned)len);
+    for(i = 0; i < len; i++)
+        log_draw(" %02X", pData[i]);
+    log_draw("\r\n");
+}
+
+/*********************************************************************
  * 接收回调：UsrProf 收到主机写入时调用。
- * HEX 帧的 HEX 打印已在 profile 内完成，这里直接喂入协议层拼帧解析。
+ * 打印接收方向数据，后续可接协议层拼帧解析。
  *********************************************************************/
 /*********************************************************************
  * @fn      ble_rx_cb
@@ -30,9 +53,8 @@
 static void ble_rx_cb(uint16_t connHandle, uint8_t *pValue, uint16_t len, uint8_t method)
 {
     (void)connHandle;
-    (void)pValue;
-    (void)len;
     (void)method;
+    ble_dump("-> ", pValue, len);
 }
 
 /* 连接状态回调：将连接/断开状态通知应用层。
@@ -83,6 +105,7 @@ void BleInterface_Init(void)
  */
 void BleInterface_Send(uint16_t connHandle, uint8_t *pData, uint16_t len)
 {
+    ble_dump("<- ", pData, len);
     UsrProf_Send(connHandle, pData, len);
 }
 
