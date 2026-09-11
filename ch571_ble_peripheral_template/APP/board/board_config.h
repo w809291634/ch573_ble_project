@@ -32,6 +32,10 @@
 /* 全局调试层：低于该级别的日志不输出。可用 DBG_ERROR、DBG_WARNING、DBG_INFO、DBG_LOG。 */
 #define BOARD_CFG_LOG_LEVEL         DBG_INFO
 
+/* User Profile 的收发 HEX 日志开关。 */
+#define BOARD_CFG_USR_PROF_RX_LOG_EN  0
+#define BOARD_CFG_USR_PROF_TX_LOG_EN  0
+
 /* ============================ Shell：命令行控制台 ============================ */
 /* 输入/输出走 USB CDC，建立最低优先级任务消费输入。 */
 

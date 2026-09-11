@@ -15,9 +15,18 @@
  * INCLUDES
  */
 #include "CONFIG.h"
+#include "peripheral.h"
+#include "apl_utility/utility.h"
+
+#if 0   /* 备用：WCH 示例 SimpleProfile/DevInfo 服务（需要时改为 1） */
 #include "devinfoservice.h"
 #include "gattprofile.h"
-#include "peripheral.h"
+#else   /* 启用：User Profile 业务服务(0xFFF0/0xFFF6) */
+#include "user_profile.h"
+#endif
+
+// User Profile 数据收发统一入口
+#include "ble_interface.h"
 
 /*********************************************************************
  * MACROS
@@ -80,6 +89,7 @@
 static uint8_t Peripheral_TaskID = INVALID_TASK_ID; // Task ID for internal task/event processing
 
 // GAP - SCAN RSP data (max size = 31 bytes)
+#if 0   /* 备用：原始静态广播名（运行时已改为 Peripheral_SetName 动态生成） */
 static uint8_t scanRspData[] = {
     // complete name
     0x12, // length of this data
@@ -114,6 +124,12 @@ static uint8_t scanRspData[] = {
     GAP_ADTYPE_POWER_LEVEL,
     0 // 0dBm
 };
+#endif
+
+/* 广播名：运行时可改，可经 NV 持久化 */
+static char advName[GAP_DEVICE_NAME_LEN] = "CH571_USR_PROF";
+static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN];
+static uint8_t scanRspData[31];
 
 // GAP - Advertisement data (max size = 31 bytes, though this is
 // best kept short to conserve power while advertising)
@@ -127,14 +143,18 @@ static uint8_t advertData[] = {
 
     // service UUID, to notify central devices what services are included
     // in this peripheral
+#if 0   /* 备用：示例服务 0xFFE0 */
     0x03,                  // length of this data
     GAP_ADTYPE_16BIT_MORE, // some of the UUID's, but not all
     LO_UINT16(SIMPLEPROFILE_SERV_UUID),
     HI_UINT16(SIMPLEPROFILE_SERV_UUID)
+#else   /* 启用：User Profile 服务 0xFFF0 */
+    0x03,                   // length of this data
+    GAP_ADTYPE_16BIT_MORE,  // some of the UUID's, but not all
+    LO_UINT16(USR_PROF_SERV_UUID),
+    HI_UINT16(USR_PROF_SERV_UUID)
+#endif
 };
-
-// GAP GATT Attributes
-static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "Simple Peripheral";
 
 // Connection item list
 static peripheralConnItem_t peripheralConnList;
@@ -146,12 +166,14 @@ static uint8_t peripheralMTU = ATT_MTU_SIZE;
 static void Peripheral_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
 static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEvent_t *pEvent);
 static void performPeriodicTask(void);
-static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len);
 static void peripheralParamUpdateCB(uint16_t connHandle, uint16_t connInterval,
                                     uint16_t connSlaveLatency, uint16_t connTimeout);
 static void peripheralInitConnItem(peripheralConnItem_t *peripheralConnList);
 static void peripheralRssiCB(uint16_t connHandle, int8_t rssi);
+#if 0   /* 备用：示例服务回调 */
+static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len);
 static void peripheralChar4Notify(uint8_t *pValue, uint16_t len);
+#endif
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -177,12 +199,76 @@ static gapBondCBs_t Peripheral_BondMgrCBs = {
 };
 
 // Simple GATT Profile Callbacks
+#if 0   /* 备用：示例服务回调 */
 static simpleProfileCBs_t Peripheral_SimpleProfileCBs = {
     simpleProfileChangeCB // Characteristic value change callback
 };
+#endif
 /*********************************************************************
  * PUBLIC FUNCTIONS
  */
+
+/*********************************************************************
+ * 根据 advName 重组广播扫描响应数据与时设备名；在广播前调用一次，
+ * 改名前也调用 Peripheral_SetName() 更新广播名。
+ *********************************************************************/
+static void peripheralBuildAdvData(void)
+{
+    uint16_t i;
+    uint8_t  nameLen = 0;
+    uint8_t  *p = scanRspData;
+
+    while(advName[nameLen] != '\0' && nameLen < GAP_DEVICE_NAME_LEN)
+        nameLen++;
+    if(nameLen > 19)            /* 保证 SCAN RSP 总长 <= 31 */
+        nameLen = 19;
+
+    /* SCAN RSP：完整名 AD */
+    *p++ = (uint8_t)(1 + nameLen);              /* 长度：类型+名字 */
+    *p++ = GAP_ADTYPE_LOCAL_NAME_COMPLETE;
+    for(i = 0; i < nameLen; i++)
+        *p++ = (uint8_t)advName[i];
+
+    /* 连接间隔范围 */
+    *p++ = 0x05;
+    *p++ = GAP_ADTYPE_SLAVE_CONN_INTERVAL_RANGE;
+    *p++ = LO_UINT16(DEFAULT_DESIRED_MIN_CONN_INTERVAL);
+    *p++ = HI_UINT16(DEFAULT_DESIRED_MIN_CONN_INTERVAL);
+    *p++ = LO_UINT16(DEFAULT_DESIRED_MAX_CONN_INTERVAL);
+    *p++ = HI_UINT16(DEFAULT_DESIRED_MAX_CONN_INTERVAL);
+
+    /* 发射功率 */
+    *p++ = 0x02;
+    *p++ = GAP_ADTYPE_POWER_LEVEL;
+    *p++ = 0;
+
+    /* 设备名 GATT 属性 */
+    for(i = 0; i < GAP_DEVICE_NAME_LEN; i++)
+        attDeviceName[i] = (i < nameLen) ? (uint8_t)advName[i] : '\0';
+}
+
+/*********************************************************************
+ * 更新广播名：写入运行时缓冲并重新下发 GAP 参数（广播在下个周期使用）。
+ *********************************************************************/
+void Peripheral_SetName(const char *name)
+{
+    uint32_t i;
+    if(name == NULL)
+        return;
+
+    for(i = 0; i < (uint32_t)(GAP_DEVICE_NAME_LEN - 1) && name[i] != '\0'; i++)
+        advName[i] = name[i];
+    advName[i] = '\0';
+
+    peripheralBuildAdvData();
+
+    GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
+    {
+        uint8_t advertising_enable = TRUE;
+        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_enable);
+    }
+}
 
 /*********************************************************************
  * @fn      Peripheral_Init
@@ -201,6 +287,9 @@ static simpleProfileCBs_t Peripheral_SimpleProfileCBs = {
 void Peripheral_Init()
 {
     Peripheral_TaskID = TMOS_ProcessEventRegister(Peripheral_ProcessEvent);
+
+    /* 使用工程内的默认广播名构建广播与扫描响应数据。 */
+    peripheralBuildAdvData();
 
     // Setup the GAP Peripheral Role Profile
     {
@@ -241,13 +330,18 @@ void Peripheral_Init()
     // Initialize GATT attributes
     GGS_AddService(GATT_ALL_SERVICES);           // GAP
     GATTServApp_AddService(GATT_ALL_SERVICES);   // GATT attributes
+#if 0   /* 备用：示例服务 */
     DevInfo_AddService();                        // Device Information Service
     SimpleProfile_AddService(GATT_ALL_SERVICES); // Simple GATT Profile
+#else   /* 启用：User Profile 业务服务(0xFFF0/0xFFF6) */
+    UsrProf_AddService(GATT_ALL_SERVICES);
+#endif
 
     // Set the GAP Characteristics
     GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
 
     // Setup the SimpleProfile Characteristic Values
+#if 0   /* 备用：示例服务初始值 */
     {
         uint8_t charValue1[SIMPLEPROFILE_CHAR1_LEN] = {1};
         uint8_t charValue2[SIMPLEPROFILE_CHAR2_LEN] = {2};
@@ -261,12 +355,13 @@ void Peripheral_Init()
         SimpleProfile_SetParameter(SIMPLEPROFILE_CHAR4, SIMPLEPROFILE_CHAR4_LEN, charValue4);
         SimpleProfile_SetParameter(SIMPLEPROFILE_CHAR5, SIMPLEPROFILE_CHAR5_LEN, charValue5);
     }
+#endif
 
     // Init Connection Item
     peripheralInitConnItem(&peripheralConnList);
 
-    // Register callback with SimpleGATTprofile
-    SimpleProfile_RegisterAppCBs(&Peripheral_SimpleProfileCBs);
+    // Register User Profile 数据收发统一入口（内部注册 FFF6 接收回调）
+    BleInterface_Init();
 
     // Register receive scan request callback
     GAPRole_BroadcasterSetCB(&Broadcaster_BroadcasterCBs);
@@ -338,7 +433,7 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
             tmos_start_task(Peripheral_TaskID, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD);
         }
         // Perform periodic application task
-        performPeriodicTask();
+        // performPeriodicTask();
         return (events ^ SBP_PERIODIC_EVT);
     }
 
@@ -542,6 +637,7 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
                 Peripheral_LinkTerminated(pEvent);
                 PRINT("Disconnected.. Reason:%x\n", pEvent->linkTerminate.reason);
                 PRINT("Advertising..\n");
+                UsrProf_OnConnState(pEvent->linkTerminate.connectionHandle, 0u); /* 连接断开 */
             }
             else if(pEvent->gap.opcode == GAP_MAKE_DISCOVERABLE_DONE_EVENT)
             {
@@ -554,6 +650,7 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
             {
                 Peripheral_LinkEstablished(pEvent);
                 PRINT("Connected..\n");
+                UsrProf_OnConnState(pEvent->linkCmpl.connectionHandle, 1u); /* 连接建立 */
             }
             break;
 
@@ -573,6 +670,7 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
             {
                 Peripheral_LinkTerminated(pEvent);
                 PRINT("Disconnected.. Reason:%x\n", pEvent->linkTerminate.reason);
+                UsrProf_OnConnState(pEvent->linkTerminate.connectionHandle, 0u); /* 连接断开 */
             }
             else if(pEvent->gap.opcode == GAP_LINK_ESTABLISHED_EVENT)
             {
@@ -600,6 +698,7 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
     }
 }
 
+#if 0
 /*********************************************************************
  * @fn      performPeriodicTask
  *
@@ -686,6 +785,7 @@ static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len
             break;
     }
 }
+#endif
 
 /*********************************************************************
 *********************************************************************/
