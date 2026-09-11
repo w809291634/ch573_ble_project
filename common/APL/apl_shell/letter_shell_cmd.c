@@ -6,6 +6,7 @@
 #include "peripheral.h"         /* Peripheral_SetName */
 #include "apl_utility/utility.h"    /* Utility_GetTickMs */
 #include "drv_usb_cdc/usb_cdc.h"    /* USB_CDC_DisconnectForReset */
+#include "CH57xBLE_LIB.h"           /* GAPRole_GetParameter / GAPROLE_* */
 #include <stdio.h>              /* printf（重定向到 USB CDC） */
 #include <stddef.h>             /* ptrdiff_t */
 #include <string.h>
@@ -44,3 +45,38 @@ void cmd_free(void)
 SHELL_EXPORT_CMD(
 SHELL_CMD_PERMISSION(0)|SHELL_CMD_TYPE(SHELL_TYPE_CMD_FUNC)|SHELL_CMD_DISABLE_RETURN,
 free, cmd_free, show free memory);
+
+/* 系统综合信息 */
+void cmd_info(void)
+{
+    extern char _end[];
+    extern char _heap_end[];
+    char *cur = (char *)_sbrk(0);
+    unsigned long total = (unsigned long)((char *)_heap_end - (char *)_end);
+    unsigned long used  = (unsigned long)((char *)cur - (char *)_end);
+    unsigned long avail = (unsigned long)((char *)_heap_end - cur);
+
+    uint8_t ble_state;
+    uint8_t mac[6];
+    const char *state_str[] = {"INIT","STARTED","ADV","WAIT","CONN","CONN_ADV","ERR"};
+
+    GAPRole_GetParameter(GAPROLE_STATE, &ble_state);
+    GAPRole_GetParameter(GAPROLE_BD_ADDR, mac);
+
+    printf("=== System Info ===\r\n");
+#ifdef FIRMWARE_VERSION
+    printf("fw:     %s\r\n", FIRMWARE_VERSION);
+#else
+    printf("fw:     unknown\r\n");
+#endif
+    printf("uptime: %lu ms\r\n", Utility_GetTickMs());
+    printf("sysclk: %lu Hz\r\n", GetSysClock());
+    printf("heap:   total=%lu used=%lu free=%lu\r\n", total, used, avail);
+    printf("chip:   0x%02X\r\n", R8_CHIP_ID);
+    printf("reset:  0x%02X\r\n", R8_RESET_STATUS & 0x07);
+    printf("ble:    %s (%d)\r\n", (ble_state <= 6) ? state_str[ble_state] : "UNKNOWN", ble_state);
+    printf("mac:    %02X:%02X:%02X:%02X:%02X:%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
+SHELL_EXPORT_CMD(
+SHELL_CMD_PERMISSION(0)|SHELL_CMD_TYPE(SHELL_TYPE_CMD_FUNC)|SHELL_CMD_DISABLE_RETURN,
+info, cmd_info, show system summary);
