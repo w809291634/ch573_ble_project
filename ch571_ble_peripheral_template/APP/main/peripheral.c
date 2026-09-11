@@ -90,7 +90,7 @@
 static uint8_t Peripheral_TaskID = INVALID_TASK_ID; // Task ID for internal task/event processing
 
 // GAP - SCAN RSP data (max size = 31 bytes)
-#if 0   /* 备用：原始静态广播名（运行时已改为 Peripheral_SetName 动态生成） */
+#if 0   /* 备用：原始静态广播名。 */
 static uint8_t scanRspData[] = {
     // complete name
     0x12, // length of this data
@@ -210,8 +210,7 @@ static simpleProfileCBs_t Peripheral_SimpleProfileCBs = {
  */
 
 /*********************************************************************
- * 根据 advName 重组广播扫描响应数据与时设备名；在广播前调用一次，
- * 改名前也调用 Peripheral_SetName() 更新广播名。
+ * 根据 advName 重组广播扫描响应数据与设备名；在广播前调用一次。
  *********************************************************************/
 /*********************************************************************
  * @fn      peripheralBuildAdvData
@@ -270,35 +269,6 @@ static void peripheralLoadNvName(void)
     for(i = 0; i < (uint32_t)(GAP_DEVICE_NAME_LEN - 1) && cfg->adv_name[i] != '\0'; i++)
         advName[i] = cfg->adv_name[i];
     advName[i] = '\0';
-}
-
-/*********************************************************************
- * 更新广播名：写入运行时缓冲并重新下发 GAP 参数（广播在下个周期使用）。
- *********************************************************************/
-/*********************************************************************
- * @fn      Peripheral_SetName
- * @brief   更新运行时 BLE 广播名并重新下发 GAP 参数。
- * @param   name - 新广播名称字符串。
- * @return  none
- */
-void Peripheral_SetName(const char *name)
-{
-    uint32_t i;
-    if(name == NULL)
-        return;
-
-    for(i = 0; i < (uint32_t)(GAP_DEVICE_NAME_LEN - 1) && name[i] != '\0'; i++)
-        advName[i] = name[i];
-    advName[i] = '\0';
-
-    peripheralBuildAdvData();
-
-    GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
-    {
-        uint8_t advertising_enable = TRUE;
-        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_enable);
-    }
 }
 
 /*********************************************************************

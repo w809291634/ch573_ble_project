@@ -1,58 +1,43 @@
 /****************************** (C) COPYRIGHT *******************************
  * File Name          : nv_shell.c
- * Description        : NV 应用层 shell 命令：读取/设置统一 NV 结构体内的信息。
- *                       命令：
- *                         nvset store       设置门店模式
- *                         nvset family      设置家庭模式
- *                         nvset name <name> 设置广播名称
- *                        （读取门店/家庭模式 + 广播名称已并入 sysinfo 命令，nvshow 已移除）
+ * Description        : 通用应用 NV Shell 命令。
  *******************************************************************************/
 
-#include "apl_shell/letter_shell_app.h"
 #include "apl_shell/shell.h"
-#include "board_config.h"
-#include "nv/nv_app.h"
+#include "nv_app.h"
+#include "CH57x_common.h"
 #include <stdio.h>
 #include <string.h>
 
-/* 设置 NV 信息（release 版本通过宏禁用，避免现场误改） */
-#if BOARD_CFG_NV_SET_CMD_ENABLE
-void cmd_nvset(int argc, char *argv[])
+/*********************************************************************
+ * @fn      cmd_blename
+ * @brief   查询或设置 BLE 广播名称；设置成功后重启设备。
+ * @param   argc - 参数数量。
+ * @param   argv - 参数列表，支持 get 或 set <name>。
+ * @return  none
+ */
+void cmd_blename(int argc, char *argv[])
 {
-    if(argc < 2)
+    if(argc == 2 && strcmp(argv[1], "get") == 0)
     {
-        printf("usage: nvset store|family|name <name>\r\n");
+        printf("%s\r\n", NvApp_Get()->adv_name);
         return;
     }
 
-    if(strcmp(argv[1], "store") == 0)
+    if(argc >= 3 && strcmp(argv[1], "set") == 0)
     {
-        NvApp_SetStoreMode(NV_APP_STORE_MODE_STORE);
-        printf("store_mode=STORE\r\n");
-    }
-    else if(strcmp(argv[1], "family") == 0)
-    {
-        NvApp_SetStoreMode(NV_APP_STORE_MODE_FAMILY);
-        printf("store_mode=FAMILY\r\n");
-    }
-    else if(strcmp(argv[1], "name") == 0)
-    {
-        if(argc < 3)
+        if(NvApp_SetAdvName(argv[2]) != 0)
         {
-            printf("usage: nvset name <name>\r\n");
+            printf("save failed\r\n");
             return;
         }
-        if(NvApp_SetAdvName(argv[2]) != 0)
-            printf("save fail\r\n");
-        else
-            printf("name saved\r\n");
+        printf("name saved, rebooting...\r\n");
+        SYS_ResetExecute();
+        return;
     }
-    else
-    {
-        printf("bad param: %s\r\n", argv[1]);
-    }
+
+    printf("usage: blename get | blename set <name>\r\n");
 }
 SHELL_EXPORT_CMD(
 SHELL_CMD_PERMISSION(0)|SHELL_CMD_TYPE(SHELL_TYPE_CMD_MAIN)|SHELL_CMD_DISABLE_RETURN,
-nvset, cmd_nvset, set NV info);
-#endif /* BOARD_CFG_NV_SET_CMD_ENABLE */
+blename, cmd_blename, get or set BLE advertising name);

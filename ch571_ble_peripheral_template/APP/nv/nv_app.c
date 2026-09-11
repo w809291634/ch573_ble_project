@@ -76,6 +76,21 @@ const app_nv_cfg_t *NvApp_Get(void)
 }
 
 /*********************************************************************
+ * @fn      NvApp_SetAdvName
+ * @brief   更新应用 NV 中的广播名称并立即保存。
+ * @param   name - 新广播名称字符串。
+ * @return  0-成功，-1-名称无效或保存失败。
+ */
+int NvApp_SetAdvName(const char *name)
+{
+    if(name == NULL)
+        return -1;
+
+    nv_copy_name(s_app_nv.adv_name, name);
+    return NvApp_Save();
+}
+
+/*********************************************************************
  * @fn      NvApp_Save
  * @brief   将完整应用 NV 配置写入 DataFlash 分配页。
  * @return  0-成功，-1-失败。
