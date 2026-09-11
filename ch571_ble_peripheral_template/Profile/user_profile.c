@@ -88,6 +88,12 @@ static gattServiceCBs_t usrProfCBs = {
 /*********************************************************************
  * 对外接口
  *********************************************************************/
+/*********************************************************************
+ * @fn      UsrProf_AddService
+ * @brief   注册 User Profile GATT 服务。
+ * @param   services - 服务掩码，当前保留以兼容 GATT 服务接口。
+ * @return  BLE 状态码。
+ */
 bStatus_t UsrProf_AddService(uint32_t services)
 {
     (void)services;
@@ -98,6 +104,12 @@ bStatus_t UsrProf_AddService(uint32_t services)
                                        &usrProfCBs);
 }
 
+/*********************************************************************
+ * @fn      UsrProf_RegisterAppCBs
+ * @brief   注册应用层接收与连接状态回调。
+ * @param   appCallbacks - 应用层回调表。
+ * @return  BLE 状态码。
+ */
 bStatus_t UsrProf_RegisterAppCBs(usr_prof_cbs_t *appCallbacks)
 {
     if(appCallbacks == NULL)
@@ -106,6 +118,13 @@ bStatus_t UsrProf_RegisterAppCBs(usr_prof_cbs_t *appCallbacks)
     return SUCCESS;
 }
 
+/*********************************************************************
+ * @fn      UsrProf_SetParameter
+ * @brief   更新 User Profile 特性值缓存。
+ * @param   len   - 数据长度。
+ * @param   value - 数据缓冲。
+ * @return  BLE 状态码。
+ */
 bStatus_t UsrProf_SetParameter(uint8_t len, void *value)
 {
     uint16_t cpLen = len;
@@ -117,6 +136,11 @@ bStatus_t UsrProf_SetParameter(uint8_t len, void *value)
     return SUCCESS;
 }
 
+/*********************************************************************
+ * @fn      UsrProf_GetConnHandle
+ * @brief   获取当前有效 BLE 连接句柄。
+ * @return  连接句柄；未连接时为 GAP_CONNHANDLE_INIT。
+ */
 uint16_t UsrProf_GetConnHandle(void)
 {
     return usrProfConnHandle;
@@ -124,6 +148,13 @@ uint16_t UsrProf_GetConnHandle(void)
 
 /* 连接状态入口：由 gapRole 连接/断开事件调用（见 peripheralStateNotificationCB）。
  * up=1 连接建立，0 连接断开。断开时清通知配置并复位连接句柄。 */
+/*********************************************************************
+ * @fn      UsrProf_OnConnState
+ * @brief   同步 User Profile 的 BLE 连接状态与 CCCD 配置。
+ * @param   connHandle - BLE 连接句柄。
+ * @param   up         - 1-连接建立，0-连接断开。
+ * @return  none
+ */
 void UsrProf_OnConnState(uint16_t connHandle, uint8_t up)
 {
     if(connHandle == LOOPBACK_CONNHANDLE)
@@ -144,6 +175,14 @@ void UsrProf_OnConnState(uint16_t connHandle, uint8_t up)
 }
 
 /* 打印 HEX 内容（前缀 + 逐字节十六进制） */
+/*********************************************************************
+ * @fn      usrProfPrintHex
+ * @brief   输出指定数据缓冲的十六进制日志。
+ * @param   tag - 日志标签。
+ * @param   p   - 数据缓冲。
+ * @param   len - 数据长度。
+ * @return  none
+ */
 static void usrProfPrintHex(const char *tag, const uint8_t *p, uint16_t len)
 {
     uint16_t i;
@@ -156,6 +195,14 @@ static void usrProfPrintHex(const char *tag, const uint8_t *p, uint16_t len)
 }
 
 /* 发送：打印 TX 内容并下发 FFF6 通知 */
+/*********************************************************************
+ * @fn      UsrProf_Send
+ * @brief   通过已订阅的 User Profile 特性发送通知。
+ * @param   connHandle - BLE 连接句柄。
+ * @param   pValue     - 待发送数据缓冲。
+ * @param   len        - 待发送数据长度。
+ * @return  BLE 状态码。
+ */
 bStatus_t UsrProf_Send(uint16_t connHandle, uint8_t *pValue, uint16_t len)
 {
     attHandleValueNoti_t noti;
@@ -192,6 +239,18 @@ bStatus_t UsrProf_Send(uint16_t connHandle, uint8_t *pValue, uint16_t len)
 /*********************************************************************
  * 存/取回调
  *********************************************************************/
+/*********************************************************************
+ * @fn      usrProf_ReadAttrCB
+ * @brief   处理 User Profile 特性读取请求。
+ * @param   connHandle - BLE 连接句柄。
+ * @param   pAttr      - 目标属性。
+ * @param   pValue     - 读取结果缓冲。
+ * @param   pLen       - 返回长度。
+ * @param   offset     - 读取偏移。
+ * @param   maxLen     - 最大返回长度。
+ * @param   method     - ATT 访问方式。
+ * @return  ATT 状态码。
+ */
 static bStatus_t usrProf_ReadAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
                                 uint8_t *pValue, uint16_t *pLen, uint16_t offset,
                                 uint16_t maxLen, uint8_t method)
@@ -220,6 +279,17 @@ static bStatus_t usrProf_ReadAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
     return SUCCESS;
 }
 
+/*********************************************************************
+ * @fn      usrProf_WriteAttrCB
+ * @brief   处理 User Profile 特性或 CCCD 写入请求。
+ * @param   connHandle - BLE 连接句柄。
+ * @param   pAttr      - 目标属性。
+ * @param   pValue     - 写入数据缓冲。
+ * @param   len        - 写入数据长度。
+ * @param   offset     - 写入偏移。
+ * @param   method     - ATT 写入方式。
+ * @return  ATT 状态码。
+ */
 static bStatus_t usrProf_WriteAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
                                  uint8_t *pValue, uint16_t len, uint16_t offset,
                                  uint8_t method)

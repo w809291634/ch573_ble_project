@@ -9,6 +9,11 @@
 #include "drv_usb_cdc/usb_cdc.h"
 #endif
 
+/*********************************************************************
+ * @fn      Stdio_RedirectInit
+ * @brief   按板级路由配置初始化 USB CDC 或 UART 输出外设。
+ * @return  none
+ */
 void Stdio_RedirectInit(void)
 {
     /* Shell 固定使用 USB CDC；仅 UART stdout 且关闭 Shell 时无需初始化 USB。 */
@@ -34,6 +39,14 @@ void Stdio_RedirectInit(void)
 #endif
 }
 
+/*********************************************************************
+ * @fn      _write
+ * @brief   将标准输出重定向至配置的 USB CDC 或 UART 发送端。
+ * @param   fd   - 文件描述符，未使用。
+ * @param   buf  - 待发送字节缓冲。
+ * @param   size - 待发送字节数。
+ * @return  实际处理的字节数。
+ */
 #if BOARD_CFG_STDIO_OUTPUT == BOARD_CFG_STDIO_OUTPUT_USB_CDC
 
 int _write(int fd, char *buf, int size)

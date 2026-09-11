@@ -18,6 +18,15 @@
  * 接收回调：UsrProf 收到主机写入时调用。
  * HEX 帧的 HEX 打印已在 profile 内完成，这里直接喂入协议层拼帧解析。
  *********************************************************************/
+/*********************************************************************
+ * @fn      ble_rx_cb
+ * @brief   接收 User Profile 主机写入回调。
+ * @param   connHandle - BLE 连接句柄。
+ * @param   pValue     - 收到的数据缓冲。
+ * @param   len        - 收到的数据长度。
+ * @param   method     - ATT 写入方式。
+ * @return  none
+ */
 static void ble_rx_cb(uint16_t connHandle, uint8_t *pValue, uint16_t len, uint8_t method)
 {
     (void)connHandle;
@@ -30,6 +39,13 @@ static void ble_rx_cb(uint16_t connHandle, uint8_t *pValue, uint16_t len, uint8_
  * 同时记录当前连接句柄，供主动断开使用。 */
 static uint16_t s_conn_handle = GAP_CONNHANDLE_INIT;
 
+/*********************************************************************
+ * @fn      ble_conn_cb
+ * @brief   更新当前 BLE 连接句柄。
+ * @param   connHandle - BLE 连接句柄。
+ * @param   up         - 1-连接建立，0-连接断开。
+ * @return  none
+ */
 static void ble_conn_cb(uint16_t connHandle, uint8_t up)
 {
     s_conn_handle = up ? connHandle : GAP_CONNHANDLE_INIT;
@@ -46,18 +62,35 @@ static usr_prof_cbs_t s_usrProfCBs = {
 /*********************************************************************
  * 对外接口
  *********************************************************************/
+/*********************************************************************
+ * @fn      BleInterface_Init
+ * @brief   注册 User Profile 收发回调。
+ * @return  none
+ */
 void BleInterface_Init(void)
 {
     UsrProf_RegisterAppCBs(&s_usrProfCBs);
     log_d("ble_interface init");
 }
 
+/*********************************************************************
+ * @fn      BleInterface_Send
+ * @brief   通过 User Profile 发送 BLE 通知数据。
+ * @param   connHandle - BLE 连接句柄。
+ * @param   pData      - 待发送数据缓冲。
+ * @param   len        - 待发送数据长度。
+ * @return  none
+ */
 void BleInterface_Send(uint16_t connHandle, uint8_t *pData, uint16_t len)
 {
     UsrProf_Send(connHandle, pData, len);
 }
 
-/* 主动断开当前激活的 BLE 连接。 */
+/*********************************************************************
+ * @fn      BleInterface_Disconnect
+ * @brief   主动断开当前激活的 BLE 连接。
+ * @return  none
+ */
 void BleInterface_Disconnect(void)
 {
     if(s_conn_handle != GAP_CONNHANDLE_INIT)
