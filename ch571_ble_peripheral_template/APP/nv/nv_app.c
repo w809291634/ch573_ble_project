@@ -19,7 +19,7 @@ typedef char app_nv_area_word_aligned[(BOARD_CFG_NV_AREA_SIZE % sizeof(uint32_t)
 
 /*********************************************************************
  * @fn      nv_copy_name
- * @brief   复制并截断广播名称，确保目标字符串以空字符结束。
+ * @brief   将广播名称复制到固定长度 NV 字段，剩余字节填零。
  * @param   dst - 目标名称缓冲。
  * @param   src - 源名称字符串。
  * @return  none
@@ -28,9 +28,9 @@ static void nv_copy_name(char *dst, const char *src)
 {
     uint32_t i;
 
-    for(i = 0; i < (BOARD_CFG_NV_NAME_MAX - 1U) && src[i] != '\0'; i++)
+    memset(dst, 0, BOARD_CFG_NV_NAME_MAX);
+    for(i = 0; i < BOARD_CFG_NV_NAME_MAX && src[i] != '\0'; i++)
         dst[i] = src[i];
-    dst[i] = '\0';
 }
 
 /*********************************************************************
@@ -58,10 +58,6 @@ void NvApp_Init(void)
     {
         NvApp_Reset();
         (void)NvApp_Save();
-    }
-    else
-    {
-        s_app_nv.adv_name[BOARD_CFG_NV_NAME_MAX - 1U] = '\0';
     }
 }
 

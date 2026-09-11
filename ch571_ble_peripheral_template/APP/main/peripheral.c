@@ -266,7 +266,8 @@ static void peripheralLoadNvName(void)
     if(cfg == NULL || cfg->adv_name[0] == '\0')
         return;
 
-    for(i = 0; i < (uint32_t)(GAP_DEVICE_NAME_LEN - 1) && cfg->adv_name[i] != '\0'; i++)
+    for(i = 0; i < (uint32_t)(GAP_DEVICE_NAME_LEN - 1) &&
+              i < BOARD_CFG_NV_NAME_MAX && cfg->adv_name[i] != '\0'; i++)
         advName[i] = cfg->adv_name[i];
     advName[i] = '\0';
 }

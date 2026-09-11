@@ -40,7 +40,7 @@
 /* EEPROM_* 使用 DataFlash 区内偏移；当前 BLE SNV 从 0x7E00 起，应用使用前端一页。 */
 #define BOARD_CFG_NV_DFLASH_OFFSET      0x0000U
 #define BOARD_CFG_NV_AREA_SIZE          0x0100U
-#define BOARD_CFG_NV_NAME_MAX           18U
+#define BOARD_CFG_NV_NAME_MAX           18U  /* 最多 18 个可见字符，NV 内不保留结尾 '\0' */
 #define BOARD_CFG_NV_DEFAULT_ADV_NAME   "CH571_USR_PROF"
 
 /* ============================ Shell：命令行控制台 ============================ */

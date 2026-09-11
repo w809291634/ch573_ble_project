@@ -20,7 +20,7 @@ void cmd_blename(int argc, char *argv[])
 {
     if(argc == 2 && strcmp(argv[1], "get") == 0)
     {
-        printf("%s\r\n", NvApp_Get()->adv_name);
+        printf("%.*s\r\n", (int)BOARD_CFG_NV_NAME_MAX, NvApp_Get()->adv_name);
         return;
     }
 
