@@ -4,15 +4,21 @@
 	"isNormalMRSProject": true,
 	"basic": {
 		"chipInfo": {
-			"rtos": "NoneOS",
-			"calibrateSupport": false,
-			"UIConfigSupport": false,
-			"externalFlashSupport": false,
-			"link": "WCH-Link",
 			"vendor": "WCH",
+			"toolchain": "RISC-V",
 			"series": "CH57X",
+			"rtos": "NoneOS",
 			"mcu": "CH571F",
-			"toolchain": "RISC-V"
+			"description": "",
+			"tempratureScope": "",
+			"artifactType": "executable",
+			"link": "WCH-Link",
+			"peripheral_version": "1.0",
+			"calibrateSupport": false,
+			"calibrateCommand": "",
+			"UIConfigSupport": false,
+			"UIConfigCommand": "",
+			"externalFlashSupport": false
 		},
 		"linkedFolders": [
 			{
@@ -71,7 +77,6 @@
 				"post_script": "",
 				"post_script_description": "",
 				"excludeResources": [
-					"${project}/APL/apl_shell/letter_shell_cmd.c",
 					"${project}/APL/apl_inputex",
 					"${project}/APL/apl_bitsops",
 					"${project}/APL/apl_comm_msg",
@@ -461,6 +466,7 @@
 			},
 			"debugInRAM": false
 		},
+		"svdpath": null,
 		"output": {
 			"showDebugGDBTrace": true,
 			"saveDebugOutputToFile": false,
@@ -474,10 +480,8 @@
 			"ATTR_BUILD_BEFORE_LAUNCH_ATTR": 2,
 			"GdbServerAllocateConsole": true,
 			"GdbServerAllocateTelnetConsole": false,
-			"SkipDownloadBeforeDebug": false,
 			"StartGdbCLient": true,
-			"UPDATE_THREADLIST_ON_SUSPEND": false,
-			"DebugInRam": false
+			"UPDATE_THREADLIST_ON_SUSPEND": false
 		}
 	}
 }

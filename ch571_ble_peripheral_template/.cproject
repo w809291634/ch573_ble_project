@@ -286,7 +286,7 @@
             </toolChain>
           </folderInfo>
           <sourceEntries>
-            <entry excluding="APL/apl_shell/letter_shell_cmd.c|APL/apl_inputex|APL/apl_bitsops|APL/apl_comm_msg|DRV/drv_ntc|DRV/drv_tm1652|DRV/drv_nv|HAL/Profile|HAL/KEY.c|HAL/LED.c|StdPeriphDriver/CH57x_usbdev.c|StdPeriphDriver/CH57x_usbhostClass.c|StdPeriphDriver/CH57x_usbhostBase.c|StdPeriphDriver/CH57x_pwm.c|StdPeriphDriver/CH57x_timer1.c|StdPeriphDriver/CH57x_timer2.c|StdPeriphDriver/CH57x_timer3.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+            <entry excluding="APL/apl_inputex|APL/apl_bitsops|APL/apl_comm_msg|DRV/drv_ntc|DRV/drv_tm1652|DRV/drv_nv|HAL/Profile|HAL/KEY.c|HAL/LED.c|StdPeriphDriver/CH57x_usbdev.c|StdPeriphDriver/CH57x_usbhostClass.c|StdPeriphDriver/CH57x_usbhostBase.c|StdPeriphDriver/CH57x_pwm.c|StdPeriphDriver/CH57x_timer1.c|StdPeriphDriver/CH57x_timer2.c|StdPeriphDriver/CH57x_timer3.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
           </sourceEntries>
         </configuration>
       </storageModule>
