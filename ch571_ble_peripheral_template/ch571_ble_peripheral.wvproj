@@ -4,21 +4,15 @@
 	"isNormalMRSProject": true,
 	"basic": {
 		"chipInfo": {
-			"vendor": "WCH",
-			"toolchain": "RISC-V",
-			"series": "CH57X",
 			"rtos": "NoneOS",
-			"mcu": "CH571F",
-			"description": "",
-			"tempratureScope": "",
-			"artifactType": "executable",
-			"link": "WCH-Link",
-			"peripheral_version": "1.0",
 			"calibrateSupport": false,
-			"calibrateCommand": "",
 			"UIConfigSupport": false,
-			"UIConfigCommand": "",
-			"externalFlashSupport": false
+			"externalFlashSupport": false,
+			"link": "WCH-Link",
+			"vendor": "WCH",
+			"series": "CH57X",
+			"mcu": "CH571F",
+			"toolchain": "RISC-V"
 		},
 		"linkedFolders": [
 			{
@@ -77,11 +71,13 @@
 				"post_script": "",
 				"post_script_description": "",
 				"excludeResources": [
+					"${project}/APL/apl_shell/letter_shell_cmd.c",
 					"${project}/APL/apl_inputex",
 					"${project}/APL/apl_bitsops",
 					"${project}/APL/apl_comm_msg",
 					"${project}/DRV/drv_ntc",
 					"${project}/DRV/drv_tm1652",
+					"${project}/DRV/drv_nv",
 					"${project}/HAL/Profile",
 					"${project}/HAL/KEY.c",
 					"${project}/HAL/LED.c",
@@ -89,13 +85,9 @@
 					"${project}/StdPeriphDriver/CH57x_usbhostClass.c",
 					"${project}/StdPeriphDriver/CH57x_usbhostBase.c",
 					"${project}/StdPeriphDriver/CH57x_pwm.c",
-					"${project}/StdPeriphDriver/CH57x_spi0.c",
 					"${project}/StdPeriphDriver/CH57x_timer1.c",
 					"${project}/StdPeriphDriver/CH57x_timer2.c",
-					"${project}/StdPeriphDriver/CH57x_timer3.c",
-					"${project}/StdPeriphDriver/CH57x_uart0.c",
-					"${project}/StdPeriphDriver/CH57x_uart2.c",
-					"${project}/StdPeriphDriver/CH57x_uart3.c"
+					"${project}/StdPeriphDriver/CH57x_timer3.c"
 				],
 				"optimization": {
 					"level": "size",
@@ -178,6 +170,8 @@
 						"include_paths": [
 							"${project}/Startup",
 							"${project}/APP/include",
+							"${project}/APP/board",
+							"${project}/APP/nv",
 							"${project}/Profile/include",
 							"${project}/StdPeriphDriver/inc",
 							"${project}/HAL/include",
@@ -396,7 +390,7 @@
 		"address": "0x00000000",
 		"target_path": "",
 		"clkSpeed": "High",
-		"debug_interface_mode": "",
+		"debug_interface_mode": "1-wire serial",
 		"erase": false,
 		"program": false,
 		"verify": false,
@@ -467,7 +461,6 @@
 			},
 			"debugInRAM": false
 		},
-		"svdpath": null,
 		"output": {
 			"showDebugGDBTrace": true,
 			"saveDebugOutputToFile": false,
@@ -481,8 +474,10 @@
 			"ATTR_BUILD_BEFORE_LAUNCH_ATTR": 2,
 			"GdbServerAllocateConsole": true,
 			"GdbServerAllocateTelnetConsole": false,
+			"SkipDownloadBeforeDebug": false,
 			"StartGdbCLient": true,
-			"UPDATE_THREADLIST_ON_SUSPEND": false
+			"UPDATE_THREADLIST_ON_SUSPEND": false,
+			"DebugInRam": false
 		}
 	}
 }
