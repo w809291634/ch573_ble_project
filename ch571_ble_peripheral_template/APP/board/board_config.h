@@ -36,6 +36,13 @@
 #define BOARD_CFG_USR_PROF_RX_LOG_EN  0
 #define BOARD_CFG_USR_PROF_TX_LOG_EN  0
 
+/* ============================ 应用 NV（DataFlash） ============================ */
+/* EEPROM_* 使用 DataFlash 区内偏移；当前 BLE SNV 从 0x7E00 起，应用使用前端一页。 */
+#define BOARD_CFG_NV_DFLASH_OFFSET      0x0000U
+#define BOARD_CFG_NV_AREA_SIZE          0x0100U
+#define BOARD_CFG_NV_NAME_MAX           18U
+#define BOARD_CFG_NV_DEFAULT_ADV_NAME   "CH571_USR_PROF"
+
 /* ============================ Shell：命令行控制台 ============================ */
 /* 输入/输出走 USB CDC，建立最低优先级任务消费输入。 */
 

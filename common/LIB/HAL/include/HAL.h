@@ -70,6 +70,12 @@ extern uint16_t HAL_GetInterTempValue(void);
  */
 extern void Lib_Calibration_LSI(void);
 
+/**
+ * @brief   DataFlash 读写回调，地址使用 DataFlash 区内偏移，长度单位为 4 字节。
+ */
+extern uint32_t Lib_Read_Flash(uint32_t addr, uint32_t num, uint32_t *pBuf);
+extern uint32_t Lib_Write_Flash(uint32_t addr, uint32_t num, uint32_t *pBuf);
+
 /*********************************************************************
 *********************************************************************/
 

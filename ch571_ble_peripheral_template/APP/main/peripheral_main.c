@@ -17,6 +17,7 @@
 #include "gattprofile.h"
 #include "peripheral.h"
 #include "stdio_redirect.h"
+#include "nv_app.h"
 #include "apl_shell/letter_shell_app.h"
 #include <stdio.h>
 
@@ -65,6 +66,7 @@ static void hardware_init(void)
     GPIOB_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 #endif
     Stdio_RedirectInit();
+    NvApp_Init();
     printf("%s\n", VER_LIB);
 }
 

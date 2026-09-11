@@ -16,6 +16,7 @@
  */
 #include "CONFIG.h"
 #include "peripheral.h"
+#include "nv_app.h"
 #include "apl_utility/utility.h"
 
 #if 0   /* 备用：WCH 示例 SimpleProfile/DevInfo 服务（需要时改为 1） */
@@ -127,7 +128,7 @@ static uint8_t scanRspData[] = {
 #endif
 
 /* 广播名：运行时可改，可经 NV 持久化 */
-static char advName[GAP_DEVICE_NAME_LEN] = "CH571_USR_PROF";
+static char advName[GAP_DEVICE_NAME_LEN] = BOARD_CFG_NV_DEFAULT_ADV_NAME;
 static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN];
 static uint8_t scanRspData[31];
 
@@ -212,6 +213,11 @@ static simpleProfileCBs_t Peripheral_SimpleProfileCBs = {
  * 根据 advName 重组广播扫描响应数据与时设备名；在广播前调用一次，
  * 改名前也调用 Peripheral_SetName() 更新广播名。
  *********************************************************************/
+/*********************************************************************
+ * @fn      peripheralBuildAdvData
+ * @brief   根据当前广播名重建扫描响应数据与设备名属性。
+ * @return  none
+ */
 static void peripheralBuildAdvData(void)
 {
     uint16_t i;
@@ -247,9 +253,34 @@ static void peripheralBuildAdvData(void)
         attDeviceName[i] = (i < nameLen) ? (uint8_t)advName[i] : '\0';
 }
 
+/* 将已加载的应用 NV 广播名写入运行时广播缓冲。 */
+/*********************************************************************
+ * @fn      peripheralLoadNvName
+ * @brief   将已加载应用 NV 中的广播名复制到运行时广播缓冲。
+ * @return  none
+ */
+static void peripheralLoadNvName(void)
+{
+    const app_nv_cfg_t *cfg = NvApp_Get();
+    uint32_t i;
+
+    if(cfg == NULL || cfg->adv_name[0] == '\0')
+        return;
+
+    for(i = 0; i < (uint32_t)(GAP_DEVICE_NAME_LEN - 1) && cfg->adv_name[i] != '\0'; i++)
+        advName[i] = cfg->adv_name[i];
+    advName[i] = '\0';
+}
+
 /*********************************************************************
  * 更新广播名：写入运行时缓冲并重新下发 GAP 参数（广播在下个周期使用）。
  *********************************************************************/
+/*********************************************************************
+ * @fn      Peripheral_SetName
+ * @brief   更新运行时 BLE 广播名并重新下发 GAP 参数。
+ * @param   name - 新广播名称字符串。
+ * @return  none
+ */
 void Peripheral_SetName(const char *name)
 {
     uint32_t i;
@@ -288,7 +319,8 @@ void Peripheral_Init()
 {
     Peripheral_TaskID = TMOS_ProcessEventRegister(Peripheral_ProcessEvent);
 
-    /* 使用工程内的默认广播名构建广播与扫描响应数据。 */
+    /* 使用已加载的应用 NV 广播名构建广播与扫描响应数据。 */
+    peripheralLoadNvName();
     peripheralBuildAdvData();
 
     // Setup the GAP Peripheral Role Profile
